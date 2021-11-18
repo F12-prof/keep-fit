@@ -13,21 +13,35 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            overflow: hidden;
         }
 
         #pixi-content {
-            background: #000000;
+            /* background: #000000;
             width: 100%;
-            height: 100%;
+            height: 100%; */
+        }
+
+        #muscle-name {
+            width: 200px;
+            height: 40px;
         }
     </style>
 
-<script defer src="vendors-node_modules_pixi_js_dist_esm_pixi_js.bundle.js?fa8521de39efa25e81ca"></script><script defer src="index.bundle.js?fa8521de39efa25e81ca"></script></head>
+<script defer src="vendors-node_modules_pixi_js_dist_esm_pixi_js.bundle.js?8202b90b0708875a38ec"></script><script defer src="index.bundle.js?8202b90b0708875a38ec"></script></head>
 
 <body>
     <noscript>Please enable JavaScript in your web browser to view this page.</noscript>
     <div id="pixi-content"><canvas id="pixi-canvas" /></div>
+    <div id='name-input-box'>
+        <span>Enter the name of the muscle: </span>
+        <input id='muscle-name' />
+        <span id='hint'>Left click to draw point, Right click to finish and record the muscle</span>
+    </div>
+    <div>
+        <button id="download" type="button">
+            Download Drawn Muscles
+        </button>
+    </div>
 </body>
 
 </html>

@@ -1,7 +1,6 @@
-import { AssetType, MuscleAttributes } from './interfaces';
+import { AssetType } from './interfaces';
 
 const baseImagePath = require('../assets/base-image.png');
-const deltoidPath = require('../assets/deltoid.png');
 
 
 const assets: AssetType = {
@@ -13,14 +12,6 @@ const assets: AssetType = {
         width: 253,
         height: 575
     },
-    muscles: [{
-        name: "deltoid",
-        attributes: {},
-        path: deltoidPath,
-        x: 145,
-        y: 141,
-    },
-    ]
 };
 
 
