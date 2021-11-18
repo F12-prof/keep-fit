@@ -15,7 +15,7 @@ const sketch = new Sketch(app.screen.width, app.screen.height);
 app.stage.addChild(sketch);
 // bind input
 const inputElement = document.getElementById('muscle-name');
-inputElement.addEventListener('keydown', (e) => {
+inputElement.addEventListener('keypress', (e) => {
     sketch.setCurrentName(inputElement.value);
 });
 // download service
@@ -33,13 +33,14 @@ document.getElementById("download").addEventListener("click", (e) => {
     const outData = [];
     sketch.getDrawnObjects().forEach(elem => {
         const data = elem.graphic.geometry.graphicsData;
-        data[0].fillStyle = null;
-        data[0].lineStyle = null;
         outData.push({
-            geometry: data,
+            geometry: data[0].points,
             name: elem.name,
         });
     });
     downloadObjectAsJson(outData, "muscles");
     sketch.clearAllDrawnObjects();
+});
+document.getElementById("reset").addEventListener("click", () => {
+    sketch.resetCurrent();
 });

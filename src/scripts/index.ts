@@ -21,7 +21,7 @@ app.stage.addChild(sketch);
 
 // bind input
 const inputElement = document.getElementById('muscle-name') as HTMLInputElement;
-inputElement.addEventListener('keydown', (e: KeyboardEvent) => {
+inputElement.addEventListener('keypress', (e: KeyboardEvent) => {
     sketch.setCurrentName(inputElement.value);
 });
 
@@ -41,13 +41,15 @@ document.getElementById("download").addEventListener("click", (e) => {
     const outData:any = [];
     sketch.getDrawnObjects().forEach(elem => {
         const data = elem.graphic.geometry.graphicsData;
-        data[0].fillStyle = null;
-        data[0].lineStyle = null;
         outData.push({
-            geometry: data,
+            geometry: data[0].points,
             name: elem.name,
         });
     })
     downloadObjectAsJson(outData, "muscles");
     sketch.clearAllDrawnObjects();
+})
+
+document.getElementById("reset").addEventListener("click", () => {
+    sketch.resetCurrent();
 })
