@@ -6,30 +6,23 @@ export interface MuscleAttributes {
 }
 
 export interface Muscle {
-
-    graphic: pixi.Sprite,
+    graphic: pixi.Graphics,
     name: string,
-    attributes: MuscleAttributes
+    attributes?: MuscleAttributes
+}
+
+export interface MuscleDataJSON{
+    geometry: number[],
+    name: string,
 }
 
 export interface BaseImageAssetElement {
     name?: string;
     path: string,
-    x: number,
-    y: number
-    width: number,
-    height: number
 }
 
-export interface MuscleAssetElement {
-    name: string;
-    attributes: MuscleAttributes
-    path: string,
-    x: number,
-    y: number
-}
 
 export interface AssetType {
     baseImage: BaseImageAssetElement
-    muscles: MuscleAssetElement[]
+    muscles: MuscleDataJSON[]
 }
