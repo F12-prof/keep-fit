@@ -1,18 +1,35 @@
+@font-face {
+    font-family: "Cascadia Code";
+    src: url("../assets/cascadia-code.ttf") format("ttf");
+    font-weight: 600;
+    font-style: normal;
+}
+
 html,
-body {
+body,
+.row {
     margin: 0;
     padding: 0;
     height: 100%;
-    width: 100%
+    width: 100%;
+    background-color: black;
 }
 
 #pixi-content {
-    background: #ffffff;
     height: 100%;
-    cursor: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.panel{
-    background-color: #dddddd;
+#pixi-canvas {
+    border: 5px;
+    border-color: darkgreen;
+    border-radius: 2px;
 }
 
+.container {
+    padding: 0;
+    margin: 0;
+}

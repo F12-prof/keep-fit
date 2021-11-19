@@ -1,8 +1,9 @@
 import { Container, Sprite, InteractionEvent, GraphicsGeometry, GraphicsData, LineStyle, LINE_CAP, LINE_JOIN, ILineStyleOptions, IFillStyleOptions, FillStyle, Graphics, Ticker } from "pixi.js";
 import { mainAssets } from './assets';
 import { Muscle, MuscleDataJSON } from "./interfaces";
-import { DropShadowFilter } from '@pixi/filter-drop-shadow';
+import { RGBSplitFilter } from "@pixi/filter-rgb-split";
 import Pointer from "./pointer";
+import CLI from "./cli";
 
 export default class Human extends Container {
 
@@ -10,12 +11,12 @@ export default class Human extends Container {
     //      LifeCycle
     //-------------------------------
 
-    constructor(screenWidth: number, screenHeight: number, _lineStyle?: ILineStyleOptions, _fillStyle?: IFillStyleOptions) {
+    constructor(sceneWidth: number, sceneHeight: number, _lineStyle?: ILineStyleOptions, _fillStyle?: IFillStyleOptions) {
         super();
 
         // Setting basic context
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
+        this.sceneWidth = sceneWidth;
+        this.sceneHeight = sceneHeight;
 
         // Setting default style if not specified
         if (_lineStyle) this.lineStyle = _lineStyle;
@@ -25,13 +26,15 @@ export default class Human extends Container {
         const baseImageAsset = mainAssets.baseImage;
         const baseImage = this.baseImage = Sprite.from(mainAssets.baseImage.path);
 
-        // Adding drop shadow filter for baseImage
-        baseImage.filters = [new DropShadowFilter()];
+        // Adding rgb split filter for baseImage
+        baseImage.filters = [this.rgbSplitFilter];
+        // bind filter animation
+        Ticker.shared.add(this.onUpdateFrame.bind(this));
 
         // Center the base image
         baseImage.anchor.set(0.5, 0.5);
-        baseImage.x = screenWidth / 2;
-        baseImage.y = screenHeight / 2;
+        baseImage.x = sceneWidth / 2;
+        baseImage.y = sceneHeight / 2;
 
         // Adding base image to the stage
         this.addChild(this.baseImage);
@@ -39,11 +42,15 @@ export default class Human extends Container {
         // Load muscles blocks and add each muscle element to the stage
         this.loadMusclesFromParsedObject(mainAssets.muscles);
 
-        // Add pointer
+        // Add a fancy pointer
         this.addChild(this.pointer);
-        this.on('pointermove', this.onMouseMove.bind(this));
         this.interactive = true;
+        this.on('mousemove', this.onMouseMove.bind(this));
+        this.on('mouseout', this.onMouseLeave.bind(this));
+        // animate pointer
         Ticker.shared.add(this.pointer.onUpdateFrame.bind(this.pointer));
+        // setting original postion of the pointer. it won't be seen before mouse moves in
+        this.pointer.position.set(-500, -500);
     }
 
     //-------------------------------
@@ -51,8 +58,8 @@ export default class Human extends Container {
     //-------------------------------
 
     // Basic context
-    private readonly screenWidth: number;
-    private readonly screenHeight: number;
+    private readonly sceneWidth: number;
+    private readonly sceneHeight: number;
 
     // Core data and graphics
     private baseImage: Sprite;
@@ -77,9 +84,21 @@ export default class Human extends Container {
     // pointer graphics
     private pointer = new Pointer();
 
+    // filters
+    private rgbSplitFilter = new RGBSplitFilter([0, 0], [0, 0], [0, 0]);
+
+    // outputs
+    private output: CLI;
+
     //-------------------------------
     //      Event Handlers
     //-------------------------------
+
+    public onClickMuscle(event: InteractionEvent) {
+        if (!this.output) return;
+        const muscle = this.getMuscleFromEvent(event);
+        this.output.append(`That's ${muscle.name}!`);
+    }
 
     public onMouseEnterMuscle(event: InteractionEvent) {
         const muscle = this.getMuscleFromEvent(event);
@@ -87,7 +106,7 @@ export default class Human extends Container {
         const muscleGraphic = muscle.graphic;
 
         console.log("Mouse entering", muscle.name);
-        muscleGraphic.scale.set(1.1);
+        muscleGraphic.scale.set(1.25);
     }
 
     public onMouseLeaveMuscle(event: InteractionEvent) {
@@ -100,13 +119,47 @@ export default class Human extends Container {
 
     // pointer move event handler
     public onMouseMove(event: InteractionEvent) {
+        document.body.style.cursor = 'none';
         const pos = event.data.getLocalPosition(this);
         this.pointer.position.set(pos.x, pos.y);
+    }
+
+    // pointer move out of human scene
+    public onMouseLeave(event: InteractionEvent) {
+        document.body.style.cursor = 'pointer';
+        this.pointer.position.set(-500, -500);  // make it invisible
     }
 
     //-------------------------------
     //      Animation
     //-------------------------------
+
+    private animationRounds: number = 0;
+    private readonly filterDelta = 0.03;
+    private readonly halfPeriod = 120;
+
+    // Update filter parameters for base image
+    public onUpdateFrame(delta: number) {
+        ++this.animationRounds;
+        const { filterDelta, halfPeriod, animationRounds } = this;
+        // changes every 60 rounds
+        const [x, y] = this.rgbSplitFilter.green as number[];
+
+        if (animationRounds < halfPeriod) {
+            this.rgbSplitFilter.green = [x + filterDelta, y + filterDelta];
+        } else if (animationRounds < halfPeriod * 2) {
+            this.rgbSplitFilter.green = [x - filterDelta, y - filterDelta];
+        }
+        if (animationRounds == halfPeriod * 2) this.animationRounds = 0;
+    }
+
+    //-------------------------------
+    //      Public Methods
+    //-------------------------------
+    public bindOutput(output: CLI) {
+        this.output = output;
+    }
+
 
     //-------------------------------
     //      Private Methods
@@ -147,11 +200,11 @@ export default class Human extends Container {
             // Append the graphic to base image
             this.baseImage.addChild(muscleGraphic);
 
-            console.log(muscleGraphic);
             // Bind event handlers
             muscleGraphic.interactive = true;
             muscleGraphic.on('mouseover', this.onMouseEnterMuscle.bind(this));
             muscleGraphic.on('mouseout', this.onMouseLeaveMuscle.bind(this));
+            muscleGraphic.on('click', this.onClickMuscle.bind(this));
         })
     }
 }

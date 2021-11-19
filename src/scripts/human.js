@@ -1,12 +1,12 @@
 import { Container, Sprite, LINE_CAP, LINE_JOIN, Graphics, Ticker } from "pixi.js";
 import { mainAssets } from './assets';
-import { DropShadowFilter } from '@pixi/filter-drop-shadow';
+import { RGBSplitFilter } from "@pixi/filter-rgb-split";
 import Pointer from "./pointer";
 export default class Human extends Container {
     //-------------------------------
     //      LifeCycle
     //-------------------------------
-    constructor(screenWidth, screenHeight, _lineStyle, _fillStyle) {
+    constructor(sceneWidth, sceneHeight, _lineStyle, _fillStyle) {
         super();
         this.muscles = [];
         // Styling
@@ -23,9 +23,17 @@ export default class Human extends Container {
         };
         // pointer graphics
         this.pointer = new Pointer();
+        // filters
+        this.rgbSplitFilter = new RGBSplitFilter([0, 0], [0, 0], [0, 0]);
+        //-------------------------------
+        //      Animation
+        //-------------------------------
+        this.animationRounds = 0;
+        this.filterDelta = 0.03;
+        this.halfPeriod = 120;
         // Setting basic context
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
+        this.sceneWidth = sceneWidth;
+        this.sceneHeight = sceneHeight;
         // Setting default style if not specified
         if (_lineStyle)
             this.lineStyle = _lineStyle;
@@ -34,31 +42,43 @@ export default class Human extends Container {
         // Load base bitmap
         const baseImageAsset = mainAssets.baseImage;
         const baseImage = this.baseImage = Sprite.from(mainAssets.baseImage.path);
-        // Adding drop shadow filter for baseImage
-        baseImage.filters = [new DropShadowFilter()];
+        // Adding rgb split filter for baseImage
+        baseImage.filters = [this.rgbSplitFilter];
+        // bind filter animation
+        Ticker.shared.add(this.onUpdateFrame.bind(this));
         // Center the base image
         baseImage.anchor.set(0.5, 0.5);
-        baseImage.x = screenWidth / 2;
-        baseImage.y = screenHeight / 2;
+        baseImage.x = sceneWidth / 2;
+        baseImage.y = sceneHeight / 2;
         // Adding base image to the stage
         this.addChild(this.baseImage);
         // Load muscles blocks and add each muscle element to the stage
         this.loadMusclesFromParsedObject(mainAssets.muscles);
-        // Add pointer
+        // Add a fancy pointer
         this.addChild(this.pointer);
-        this.on('pointermove', this.onMouseMove.bind(this));
         this.interactive = true;
+        this.on('mousemove', this.onMouseMove.bind(this));
+        this.on('mouseout', this.onMouseLeave.bind(this));
+        // animate pointer
         Ticker.shared.add(this.pointer.onUpdateFrame.bind(this.pointer));
+        // setting original postion of the pointer. it won't be seen before mouse moves in
+        this.pointer.position.set(-500, -500);
     }
     //-------------------------------
     //      Event Handlers
     //-------------------------------
+    onClickMuscle(event) {
+        if (!this.output)
+            return;
+        const muscle = this.getMuscleFromEvent(event);
+        this.output.append(`That's ${muscle.name}!`);
+    }
     onMouseEnterMuscle(event) {
         const muscle = this.getMuscleFromEvent(event);
         this.currentOverMuscle = muscle;
         const muscleGraphic = muscle.graphic;
         console.log("Mouse entering", muscle.name);
-        muscleGraphic.scale.set(1.1);
+        muscleGraphic.scale.set(1.25);
     }
     onMouseLeaveMuscle(event) {
         const muscle = this.currentOverMuscle;
@@ -68,12 +88,36 @@ export default class Human extends Container {
     }
     // pointer move event handler
     onMouseMove(event) {
+        document.body.style.cursor = 'none';
         const pos = event.data.getLocalPosition(this);
         this.pointer.position.set(pos.x, pos.y);
     }
+    // pointer move out of human scene
+    onMouseLeave(event) {
+        document.body.style.cursor = 'pointer';
+        this.pointer.position.set(-500, -500); // make it invisible
+    }
+    // Update filter parameters for base image
+    onUpdateFrame(delta) {
+        ++this.animationRounds;
+        const { filterDelta, halfPeriod, animationRounds } = this;
+        // changes every 60 rounds
+        const [x, y] = this.rgbSplitFilter.green;
+        if (animationRounds < halfPeriod) {
+            this.rgbSplitFilter.green = [x + filterDelta, y + filterDelta];
+        }
+        else if (animationRounds < halfPeriod * 2) {
+            this.rgbSplitFilter.green = [x - filterDelta, y - filterDelta];
+        }
+        if (animationRounds == halfPeriod * 2)
+            this.animationRounds = 0;
+    }
     //-------------------------------
-    //      Animation
+    //      Public Methods
     //-------------------------------
+    bindOutput(output) {
+        this.output = output;
+    }
     //-------------------------------
     //      Private Methods
     //-------------------------------
@@ -107,11 +151,11 @@ export default class Human extends Container {
             });
             // Append the graphic to base image
             this.baseImage.addChild(muscleGraphic);
-            console.log(muscleGraphic);
             // Bind event handlers
             muscleGraphic.interactive = true;
             muscleGraphic.on('mouseover', this.onMouseEnterMuscle.bind(this));
             muscleGraphic.on('mouseout', this.onMouseLeaveMuscle.bind(this));
+            muscleGraphic.on('click', this.onClickMuscle.bind(this));
         });
     }
 }
