@@ -14,8 +14,8 @@ export interface Muscle {
 export interface MuscleDataJSON {
     geometry: number[],
     name: string,
-    x: string,
-    y: string,
+    x: number,
+    y: number,
 }
 
 export interface BaseImageAssetElement {

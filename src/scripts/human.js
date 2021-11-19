@@ -7,6 +7,7 @@ export default class Human extends Container {
     constructor(screenWidth, screenHeight, _lineStyle, _fillStyle) {
         super();
         this.muscles = [];
+        // Styling
         this.lineStyle = {
             color: 0xffffff,
             width: 2,
@@ -43,12 +44,13 @@ export default class Human extends Container {
     //-------------------------------
     onMouseEnterMuscle(event) {
         const muscle = this.getMuscleFromEvent(event);
+        this.currentOverMuscle = muscle;
         const muscleGraphic = muscle.graphic;
         console.log("Mouse entering", muscle.name);
         muscleGraphic.scale.set(1.1);
     }
     onMouseLeaveMuscle(event) {
-        const muscle = this.getMuscleFromEvent(event);
+        const muscle = this.currentOverMuscle;
         const muscleGraphic = muscle.graphic;
         console.log("Mouse leaving", muscle.name);
         muscleGraphic.scale.set(1.0);
@@ -75,6 +77,7 @@ export default class Human extends Container {
                 muscleGraphic.lineTo(points[i], points[i + 1]);
             }
             muscleGraphic.endFill();
+            muscleGraphic.position.set(muscleData.x, muscleData.y);
             this.muscles.push({
                 graphic: muscleGraphic,
                 name: muscleData.name,
@@ -85,9 +88,8 @@ export default class Human extends Container {
             console.log(muscleGraphic);
             // Bind event handlers
             muscleGraphic.interactive = true;
-            muscleGraphic.on('pointertap', this.onMouseEnterMuscle.bind(this));
-            muscleGraphic.on('pointerenter', this.onMouseEnterMuscle.bind(this));
-            muscleGraphic.on('pointerleave', this.onMouseLeaveMuscle.bind(this));
+            muscleGraphic.on('mouseover', this.onMouseEnterMuscle.bind(this));
+            muscleGraphic.on('mouseout', this.onMouseLeaveMuscle.bind(this));
         });
     }
 }

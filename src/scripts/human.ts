@@ -40,12 +40,15 @@ export default class Human extends Container {
     //      Properties
     //-------------------------------
 
+    // Basic context
     private readonly screenWidth: number;
     private readonly screenHeight: number;
 
+    // Core data and graphics
     private baseImage: Sprite;
     private muscles: Muscle[] = [];
 
+    // Styling
     private lineStyle: ILineStyleOptions = {
         color: 0xffffff,
         width: 2,
@@ -58,12 +61,16 @@ export default class Human extends Container {
         alpha: 0.25,
     };
 
+    // Selection and status
+    private currentOverMuscle: Muscle;
+
     //-------------------------------
     //      Event Handlers
     //-------------------------------
 
     public onMouseEnterMuscle(event: InteractionEvent) {
         const muscle = this.getMuscleFromEvent(event);
+        this.currentOverMuscle = muscle;
         const muscleGraphic = muscle.graphic;
 
         console.log("Mouse entering", muscle.name);
@@ -71,7 +78,7 @@ export default class Human extends Container {
     }
 
     public onMouseLeaveMuscle(event: InteractionEvent) {
-        const muscle = this.getMuscleFromEvent(event);
+        const muscle = this.currentOverMuscle;
         const muscleGraphic = muscle.graphic;
 
         console.log("Mouse leaving", muscle.name);
@@ -99,10 +106,11 @@ export default class Human extends Container {
             muscleGraphic.beginFill(this.fillStyle.color, this.fillStyle.alpha);
             muscleGraphic.lineStyle(this.lineStyle);
             muscleGraphic.moveTo(points[0], points[1]);
-            for (let i = 2; i < points.length; i += 2){
+            for (let i = 2; i < points.length; i += 2) {
                 muscleGraphic.lineTo(points[i], points[i + 1]);
             }
             muscleGraphic.endFill();
+            muscleGraphic.position.set(muscleData.x, muscleData.y);
 
             this.muscles.push({
                 graphic: muscleGraphic,
@@ -117,9 +125,8 @@ export default class Human extends Container {
             console.log(muscleGraphic);
             // Bind event handlers
             muscleGraphic.interactive = true;
-            muscleGraphic.on('pointertap', this.onMouseEnterMuscle.bind(this));
-            muscleGraphic.on('pointerenter', this.onMouseEnterMuscle.bind(this));
-            muscleGraphic.on('pointerleave', this.onMouseLeaveMuscle.bind(this));
+            muscleGraphic.on('mouseover', this.onMouseEnterMuscle.bind(this));
+            muscleGraphic.on('mouseout', this.onMouseLeaveMuscle.bind(this));
         })
     }
 }
