@@ -1,6 +1,8 @@
-import { Container, Sprite, InteractionEvent, GraphicsGeometry, GraphicsData, LineStyle, LINE_CAP, LINE_JOIN, ILineStyleOptions, IFillStyleOptions, FillStyle, Graphics } from "pixi.js";
-import assets from './assets';
+import { Container, Sprite, InteractionEvent, GraphicsGeometry, GraphicsData, LineStyle, LINE_CAP, LINE_JOIN, ILineStyleOptions, IFillStyleOptions, FillStyle, Graphics, Ticker } from "pixi.js";
+import { mainAssets } from './assets';
 import { Muscle, MuscleDataJSON } from "./interfaces";
+import { DropShadowFilter } from '@pixi/filter-drop-shadow';
+import Pointer from "./pointer";
 
 export default class Human extends Container {
 
@@ -19,10 +21,12 @@ export default class Human extends Container {
         if (_lineStyle) this.lineStyle = _lineStyle;
         if (_fillStyle) this.fillStyle = _fillStyle;
 
-
         // Load base bitmap
-        const baseImageAsset = assets.baseImage;
-        const baseImage = this.baseImage = Sprite.from(assets.baseImage.path);
+        const baseImageAsset = mainAssets.baseImage;
+        const baseImage = this.baseImage = Sprite.from(mainAssets.baseImage.path);
+
+        // Adding drop shadow filter for baseImage
+        baseImage.filters = [new DropShadowFilter()];
 
         // Center the base image
         baseImage.anchor.set(0.5, 0.5);
@@ -33,7 +37,13 @@ export default class Human extends Container {
         this.addChild(this.baseImage);
 
         // Load muscles blocks and add each muscle element to the stage
-        this.loadMusclesFromParsedObject(assets.muscles);
+        this.loadMusclesFromParsedObject(mainAssets.muscles);
+
+        // Add pointer
+        this.addChild(this.pointer);
+        this.on('pointermove', this.onMouseMove.bind(this));
+        this.interactive = true;
+        Ticker.shared.add(this.pointer.onUpdateFrame.bind(this.pointer));
     }
 
     //-------------------------------
@@ -64,6 +74,9 @@ export default class Human extends Container {
     // Selection and status
     private currentOverMuscle: Muscle;
 
+    // pointer graphics
+    private pointer = new Pointer();
+
     //-------------------------------
     //      Event Handlers
     //-------------------------------
@@ -84,6 +97,16 @@ export default class Human extends Container {
         console.log("Mouse leaving", muscle.name);
         muscleGraphic.scale.set(1.0);
     }
+
+    // pointer move event handler
+    public onMouseMove(event: InteractionEvent) {
+        const pos = event.data.getLocalPosition(this);
+        this.pointer.position.set(pos.x, pos.y);
+    }
+
+    //-------------------------------
+    //      Animation
+    //-------------------------------
 
     //-------------------------------
     //      Private Methods
@@ -110,14 +133,16 @@ export default class Human extends Container {
                 muscleGraphic.lineTo(points[i], points[i + 1]);
             }
             muscleGraphic.endFill();
+            // Setting relative position of the graphic
             muscleGraphic.position.set(muscleData.x, muscleData.y);
+            // Enable anti-alising for the graphic
+            muscleGraphic.cacheAsBitmap = true;
 
             this.muscles.push({
                 graphic: muscleGraphic,
                 name: muscleData.name,
                 attributes: {}
             });
-
 
             // Append the graphic to base image
             this.baseImage.addChild(muscleGraphic);

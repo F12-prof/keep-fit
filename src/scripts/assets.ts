@@ -1,10 +1,13 @@
 import { AssetType, MuscleAttributes } from './interfaces';
 
+/**
+ * Main Assets
+ */
+
 const baseImagePath = require('../assets/base-image.png');
 const muscles = require('../assets/muscles.json');
 
-
-const assets: AssetType = {
+export const mainAssets: AssetType = {
     baseImage: {
         name: "baseImage",
         path: baseImagePath,
@@ -13,7 +16,18 @@ const assets: AssetType = {
 };
 
 
+/**
+ * Pointer Assets
+ */
 
+const outterPath = require('../assets/pointer/outter.svg');
+const innerPath = require('../assets/pointer/inner.svg');
+const crossPath = require('../assets/pointer/cross.svg');
 
-export default assets;
+export const pointerAssets = {
+    outter: outterPath,
+    inner: innerPath,
+    cross: crossPath
+}
+
 

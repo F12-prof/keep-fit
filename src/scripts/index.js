@@ -10,14 +10,15 @@ import '../styles/main.scss';
  */
 const app = new Application({
     view: document.getElementById("pixi-canvas"),
-    resolution: window.devicePixelRatio || 1,
+    resolution: 2,
     autoDensity: true,
     backgroundColor: 0xffffff,
     width: 400,
-    height: document.body.clientHeight
+    height: document.body.clientHeight,
+    antialias: true,
 });
 /**
- * Adding main scene
+ * Adding **main scene**
  */
 const humanScene = new Human(app.screen.width, app.screen.height);
 app.stage.addChild(humanScene);
