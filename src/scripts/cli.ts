@@ -61,7 +61,6 @@ export default class CLI extends Container {
         wordWrap: true
     });
     private maxLines: number;
-    private readonly lineCursorYShift = 4;
     private lineWithGapHeight: number;
 
     // Data
@@ -107,7 +106,7 @@ export default class CLI extends Container {
         }
 
         // moving cursor
-        this.lineCursor.position.set(newLine.width, newLine.y + this.lineCursorYShift);
+        this.lineCursor.position.set(newLine.width, newLine.y);
 
         return this;
     }

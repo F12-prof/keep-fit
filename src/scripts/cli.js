@@ -18,7 +18,6 @@ export default class CLI extends Container {
             stroke: "#933939",
             wordWrap: true
         });
-        this.lineCursorYShift = 4;
         // Data
         this.lines = [];
         this.lineTexts = [];
@@ -81,7 +80,7 @@ export default class CLI extends Container {
             newLine.position.y = this.getLinePosition(newRowIdx);
         }
         // moving cursor
-        this.lineCursor.position.set(newLine.width, newLine.y + this.lineCursorYShift);
+        this.lineCursor.position.set(newLine.width, newLine.y);
         return this;
     }
     //-------------------------------

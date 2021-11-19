@@ -1,4 +1,4 @@
-import { AssetType, MuscleAttributes } from './interfaces';
+import { AssetType } from './interfaces';
 
 /**
  * Main Assets
