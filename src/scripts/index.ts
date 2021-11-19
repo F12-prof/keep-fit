@@ -57,5 +57,3 @@ humanScene.bindOutput(cli);
 rightSceneContainer.addChild(cli);
 cli.append('Initializing communication system...').append('...Finished').append('hello, world');
 app.stage.addChild(rightSceneContainer);
-
-
