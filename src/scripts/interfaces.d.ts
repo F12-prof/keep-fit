@@ -11,9 +11,11 @@ export interface Muscle {
     attributes?: MuscleAttributes
 }
 
-export interface MuscleDataJSON{
+export interface MuscleDataJSON {
     geometry: number[],
     name: string,
+    x: string,
+    y: string,
 }
 
 export interface BaseImageAssetElement {
