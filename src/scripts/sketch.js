@@ -56,6 +56,7 @@ export default class Sketch extends Container {
     }
     onRightClick(event) {
         console.log('Right Clicked');
+        this.currentName = document.getElementById('name-input-box').value;
         this.isDrawing = false;
         if (this.currentPath.length < 3) {
             alert('Need more than 3 points');
