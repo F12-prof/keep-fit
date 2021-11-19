@@ -32,10 +32,21 @@ function downloadObjectAsJson(exportObj, exportName) {
 document.getElementById("download").addEventListener("click", (e) => {
     const outData = [];
     sketch.getDrawnObjects().forEach(elem => {
-        const data = elem.graphic.geometry.graphicsData;
+        const points = elem.graphic.geometry.graphicsData[0].points;
+        // getting bouding rect's center of the graphic
+        const boundRect = elem.graphic.getLocalBounds();
+        const cx = (boundRect.left + boundRect.right) / 2;
+        const cy = (boundRect.top + boundRect.bottom) / 2;
+        // converting the points to local coordinates
+        for (let i = 0; i < points.length; i += 2) {
+            points[i] -= cx;
+            points[i + 1] -= cy;
+        }
         outData.push({
-            geometry: data[0].points,
+            geometry: points,
             name: elem.name,
+            x: cx,
+            y: cy
         });
     });
     downloadObjectAsJson(outData, "muscles");

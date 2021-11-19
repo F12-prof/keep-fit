@@ -9,8 +9,6 @@ const assets: AssetType = {
         path: baseImagePath,
         x: 0,
         y: 0,
-        width: 253,
-        height: 575
     },
 };
 

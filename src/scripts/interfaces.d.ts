@@ -6,8 +6,6 @@ export interface BaseImageAssetElement {
     path: string,
     x: number,
     y: number
-    width: number,
-    height: number
 }
 
 export interface AssetType {

@@ -121,6 +121,7 @@ export default class Sketch extends Container {
         this.currentPath = [];
         this.currentObject.destroy();
         this.currentObject = new Graphics();
+        this.baseImage.addChild(this.currentObject);
     }
 
     public resetCurrent() {
