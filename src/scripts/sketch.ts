@@ -85,7 +85,7 @@ export default class Sketch extends Container {
 
     public onRightClick(event: InteractionEvent) {
         console.log('Right Clicked');
-        this.currentName = (document.getElementById('name-input-box') as HTMLInputElement).value;
+        this.currentName = (document.getElementById('muscle-name') as HTMLInputElement).value;
 
         this.isDrawing = false;
 
